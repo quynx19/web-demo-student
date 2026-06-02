@@ -17,9 +17,16 @@ function redirect(string $path): void
     exit;
 }
 
-function is_post(): bool
+function csrf_token(): string
 {
-    return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+    $token = $_SESSION['csrf_token'] ?? '';
+
+    if (!is_string($token) || $token === '') {
+        $token = bin2hex(random_bytes(32));
+        $_SESSION['csrf_token'] = $token;
+    }
+
+    return $token;
 }
 
 function field_value(string $name, array $source, string $default = ''): string
@@ -32,21 +39,18 @@ function current_theme(): string
     return ($_COOKIE['theme'] ?? 'light') === 'dark' ? 'dark' : 'light';
 }
 
-function set_flash(string $type, string $message): void
+function set_flash(string $message): void
 {
-    $_SESSION['flash'] = [
-        'type' => $type,
-        'message' => $message,
-    ];
+    $_SESSION['flash'] = $message;
 }
 
-function get_flash(): ?array
+function get_flash(): ?string
 {
     if (!isset($_SESSION['flash'])) {
         return null;
     }
 
-    $flash = $_SESSION['flash'];
+    $flash = (string) $_SESSION['flash'];
     unset($_SESSION['flash']);
 
     return $flash;
@@ -60,8 +64,7 @@ function render_flash(): void
         return;
     }
 
-    $type = $flash['type'] === 'error' ? 'danger' : 'success';
-    echo '<div class="alert alert-' . e($type) . '">' . e($flash['message']) . '</div>';
+    echo '<div class="alert alert-danger">' . e($flash) . '</div>';
 }
 
 function role_label(?string $role): string
@@ -97,8 +100,10 @@ function render_header(string $title): void
     echo '<head>';
     echo '<meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<meta name="csrf-token" content="' . e(csrf_token()) . '">';
     echo '<title>' . e($title) . ' - Hồ sơ sinh viên</title>';
     echo '<link rel="stylesheet" href="assets/style.css">';
+    echo '<script src="assets/app.js" defer></script>';
     echo '</head>';
     echo '<body class="theme-' . e($theme) . '">';
 
@@ -115,7 +120,9 @@ function render_header(string $title): void
         $active = $currentPage === $href ? ' active' : '';
         echo '<a class="sidebar-link' . $active . '" href="' . e($href) . '">' . e($label) . '</a>';
     }
-    echo '<a class="sidebar-link sidebar-logout" href="logout.php">Đăng xuất</a>';
+    echo '<form class="sidebar-logout-form" method="post" action="logout.php" data-api-logout>';
+    echo '<button class="sidebar-link sidebar-logout" type="submit">Đăng xuất</button>';
+    echo '</form>';
     echo '</nav>';
     echo '</aside>';
 

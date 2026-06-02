@@ -11,6 +11,16 @@ function list_users(): array
     return $stmt->fetchAll();
 }
 
+function user_create_fields(): array
+{
+    return ['username', 'password', 'full_name', 'email', 'role', 'status'];
+}
+
+function user_update_fields(): array
+{
+    return ['full_name', 'email', 'role', 'status'];
+}
+
 function count_users(): int
 {
     return (int) get_pdo()->query('SELECT COUNT(*) FROM users')->fetchColumn();
@@ -108,6 +118,14 @@ function update_user(int $id, array $data): void
     ]);
 }
 
+function delete_user(int $id): bool
+{
+    $stmt = get_pdo()->prepare('DELETE FROM users WHERE id = :id');
+    $stmt->execute(['id' => $id]);
+
+    return $stmt->rowCount() > 0;
+}
+
 function update_current_user_profile(int $id, array $data): void
 {
     $stmt = get_pdo()->prepare('UPDATE users SET full_name = :full_name, email = :email WHERE id = :id');
@@ -116,12 +134,6 @@ function update_current_user_profile(int $id, array $data): void
         'full_name' => field_value('full_name', $data),
         'email' => field_value('email', $data),
     ]);
-}
-
-function set_user_status(int $id, string $status): void
-{
-    $stmt = get_pdo()->prepare('UPDATE users SET status = :status WHERE id = :id');
-    $stmt->execute(['id' => $id, 'status' => $status]);
 }
 
 function change_user_password(int $id, string $newPassword): void

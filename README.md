@@ -44,23 +44,19 @@ http://localhost/web-demo-student/public/login.php
 
 ## Kiểm tra API
 
-Sau khi đăng nhập, mở:
+Endpoint session công khai:
 
 ```text
-http://localhost/web-demo-student/public/api_students.php
+http://localhost/web-demo-student/public/api/session
 ```
 
-API hỗ trợ tham số:
+Sau khi đăng nhập, có thể kiểm tra danh sách sinh viên:
 
 ```text
-http://localhost/web-demo-student/public/api_students.php?q=an&major=Cong%20nghe%20thong%20tin&year=3
+http://localhost/web-demo-student/public/api/students?q=an&year=3
 ```
 
-Nếu chưa đăng nhập, API trả JSON:
-
-```json
-{"error":"Chưa đăng nhập"}
-```
+Danh sách endpoint và ví dụ gọi API: [`docs/API.md`](docs/API.md).
 
 ## Phân quyền
 
@@ -112,13 +108,14 @@ Các event thường dùng khi demo:
 - `LOGIN_FAILED`
 - `LOGOUT`
 - `ACCESS_DENIED`
-- `DASHBOARD_VIEW`
-- `STUDENT_CREATED`
-- `STUDENT_UPDATED`
-- `STUDENT_DELETED`
-- `USER_CREATED`
-- `PASSWORD_CHANGED`
-- `API_STUDENTS_REQUEST`
+- `API_DASHBOARD_VIEW`
+- `API_STUDENTS_LIST`
+- `API_STUDENT_CREATED`
+- `API_STUDENT_UPDATED`
+- `API_STUDENT_DELETED`
+- `API_USER_CREATED`
+- `API_USER_UPDATED`
+- `API_PASSWORD_CHANGED`
 - `EXCEPTION`
 
 ## Lệnh Git sau nâng cấp
@@ -126,6 +123,15 @@ Các event thường dùng khi demo:
 ```powershell
 git status
 git add .
-git commit -m "Improve Vietnamese UI and fix logout"
+git commit -m "Convert web app to API-first REST architecture"
 git push
 ```
+
+## REST API
+
+Giao diện web hoạt động theo kiến trúc API-first: các trang PHP chỉ render khung
+HTML, còn dữ liệu và thao tác nghiệp vụ được thực hiện qua REST API bằng
+`public/assets/app.js`.
+
+Tài liệu endpoint cho session, dashboard, sinh viên, tài khoản, hồ sơ cá nhân,
+đổi mật khẩu và log: [`docs/API.md`](docs/API.md).

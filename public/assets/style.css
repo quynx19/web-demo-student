@@ -14,8 +14,6 @@
     --primary-dark: #1d4ed8;
     --danger: #dc2626;
     --warning: #f59e0b;
-    --success: #16a34a;
-    --info: #0891b2;
     --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
     --radius: 10px;
 }
@@ -35,8 +33,6 @@
     --primary-dark: #0ea5e9;
     --danger: #ef4444;
     --warning: #fbbf24;
-    --success: #22c55e;
-    --info: #22d3ee;
     --shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
 }
 
@@ -127,8 +123,16 @@ a:hover {
 }
 
 .sidebar-logout {
+    background: transparent;
+    border: 0;
     color: #fecaca;
     margin-top: 18px;
+    text-align: left;
+    width: 100%;
+}
+
+.sidebar-logout-form {
+    margin: 0;
 }
 
 .main {
@@ -156,16 +160,14 @@ a:hover {
     font-size: 13px;
 }
 
-.content,
-.container {
+.content {
     margin: 0 auto;
     max-width: 1280px;
     padding: 28px;
     width: 100%;
 }
 
-.page-header,
-.page-heading {
+.page-header {
     align-items: center;
     display: flex;
     justify-content: space-between;
@@ -173,23 +175,19 @@ a:hover {
     margin-bottom: 20px;
 }
 
-.page-header h1,
-.page-heading h1 {
+.page-header h1 {
     font-size: 30px;
     line-height: 1.2;
     margin: 0 0 6px;
 }
 
-.page-header p,
-.page-heading p {
+.page-header p {
     color: var(--muted);
     margin: 0;
 }
 
 .card,
-.panel,
 .table-card,
-.table-panel,
 .login-card,
 .stat-card {
     background: var(--card);
@@ -198,8 +196,7 @@ a:hover {
     box-shadow: var(--shadow);
 }
 
-.card,
-.panel {
+.card {
     margin-bottom: 18px;
     padding: 22px;
 }
@@ -209,8 +206,7 @@ a:hover {
     margin-bottom: 0;
 }
 
-.table-card,
-.table-panel {
+.table-card {
     margin-bottom: 18px;
     overflow-x: auto;
 }
@@ -303,8 +299,7 @@ select:focus {
     outline: 3px solid rgba(37, 99, 235, 0.14);
 }
 
-.btn,
-.button {
+.btn {
     align-items: center;
     border: 1px solid transparent;
     border-radius: 8px;
@@ -319,20 +314,17 @@ select:focus {
     white-space: nowrap;
 }
 
-.btn-primary,
-.button {
+.btn-primary {
     background: var(--primary);
     color: #ffffff;
 }
 
-.btn-primary:hover,
-.button:hover {
+.btn-primary:hover {
     background: var(--primary-dark);
     color: #ffffff;
 }
 
-.btn-danger,
-.danger-button {
+.btn-danger {
     background: var(--danger);
     color: #ffffff;
 }
@@ -342,8 +334,7 @@ select:focus {
     color: #111827;
 }
 
-.btn-secondary,
-.button-secondary {
+.btn-secondary {
     background: var(--card-soft);
     border-color: var(--border);
     color: var(--text);
@@ -403,14 +394,12 @@ td {
     padding: 5px 10px;
 }
 
-.badge-admin,
-.role-badge {
+.badge-admin {
     background: #dbeafe;
     color: #1d4ed8;
 }
 
-.badge-user,
-.role-user {
+.badge-user {
     background: #dcfce7;
     color: #15803d;
 }
@@ -422,13 +411,7 @@ td {
     padding: 13px 15px;
 }
 
-.alert-success {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.alert-danger,
-.alert-error {
+.alert-danger {
     background: #fee2e2;
     color: #991b1b;
 }
@@ -440,8 +423,7 @@ td {
     margin-top: 5px;
 }
 
-.empty-state,
-.empty-cell {
+.empty-state {
     color: var(--muted);
     padding: 28px;
     text-align: center;
@@ -536,12 +518,56 @@ td {
     text-align: center;
 }
 
+.log-table {
+    overflow: hidden;
+}
+
+.log-scrollbar-top {
+    border-bottom: 1px solid var(--border);
+    height: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.log-scrollbar-top-content {
+    height: 1px;
+}
+
+.log-table-scroll {
+    max-height: 720px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.log-table .table {
+    min-width: 100%;
+    width: max-content;
+}
+
+.log-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.log-table td {
+    overflow-wrap: normal;
+    padding-bottom: 7px;
+    padding-top: 7px;
+}
+
+.log-table th:first-child,
+.log-table td:first-child {
+    min-width: 64px;
+    white-space: nowrap;
+    width: 64px;
+}
+
 .log-table code {
     background: var(--card-soft);
     color: var(--text);
     display: block;
-    overflow-x: auto;
-    padding: 8px;
+    padding: 4px 6px;
     white-space: pre;
 }
 
@@ -579,13 +605,11 @@ code {
 }
 
 @media (max-width: 640px) {
-    .content,
-    .container {
+    .content {
         padding: 18px;
     }
 
-    .page-header,
-    .page-heading {
+    .page-header {
         align-items: stretch;
         flex-direction: column;
     }
