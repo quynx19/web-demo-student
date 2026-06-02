@@ -5,11 +5,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/helpers.php';
 
-function student_writable_fields(): array
-{
-    return ['student_code', 'full_name', 'email', 'phone', 'major', 'year'];
-}
-
 function normalize_student_data(array $data): array
 {
     return [
@@ -70,7 +65,6 @@ function normalize_student_filters(array $filters): array
         'q' => trim((string) ($filters['q'] ?? '')),
         'major' => trim((string) ($filters['major'] ?? '')),
         'year' => trim((string) ($filters['year'] ?? '')),
-        'student_id' => isset($filters['student_id']) ? (int) $filters['student_id'] : null,
     ];
 }
 
@@ -104,11 +98,6 @@ function student_filter_sql(array $filters, array &$params): string
     if ($filters['year'] !== '') {
         $where[] = 'year = :year';
         $params['year'] = (int) $filters['year'];
-    }
-
-    if ($filters['student_id'] !== null) {
-        $where[] = 'id = :student_id';
-        $params['student_id'] = $filters['student_id'];
     }
 
     return $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);

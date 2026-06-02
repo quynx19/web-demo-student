@@ -18,16 +18,6 @@ function list_users(): array
     return $stmt->fetchAll();
 }
 
-function user_create_fields(): array
-{
-    return ['username', 'password', 'full_name', 'email', 'role', 'status', 'student_id'];
-}
-
-function user_update_fields(): array
-{
-    return ['full_name', 'email', 'role', 'status', 'student_id'];
-}
-
 function count_users(): int
 {
     return (int) get_pdo()->query('SELECT COUNT(*) FROM users')->fetchColumn();

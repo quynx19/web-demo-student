@@ -29,6 +29,23 @@ function csrf_token(): string
     return $token;
 }
 
+function csrf_input(): string
+{
+    return '<input type="hidden" name="csrf_token" value="' . e(csrf_token()) . '">';
+}
+
+function valid_csrf_token(): bool
+{
+    $submittedToken = $_POST['csrf_token'] ?? '';
+
+    return is_string($submittedToken) && hash_equals(csrf_token(), $submittedToken);
+}
+
+function is_post(): bool
+{
+    return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+}
+
 function field_value(string $name, array $source, string $default = ''): string
 {
     return trim((string) ($source[$name] ?? $default));
@@ -106,10 +123,8 @@ function render_header(string $title): void
     echo '<head>';
     echo '<meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
-    echo '<meta name="csrf-token" content="' . e(csrf_token()) . '">';
     echo '<title>' . e($title) . ' - Hồ sơ sinh viên</title>';
-    echo '<link rel="stylesheet" href="assets/style.css?v=20260602-2">';
-    echo '<script src="assets/app.js?v=20260602-2" defer></script>';
+    echo '<link rel="stylesheet" href="assets/style.css?v=20260602-3">';
     echo '</head>';
     echo '<body class="theme-' . e($theme) . '">';
 
@@ -126,7 +141,8 @@ function render_header(string $title): void
         $active = $currentPage === $href ? ' active' : '';
         echo '<a class="sidebar-link' . $active . '" href="' . e($href) . '">' . e($label) . '</a>';
     }
-    echo '<form class="sidebar-logout-form" method="post" action="logout.php" data-api-logout>';
+    echo '<form class="sidebar-logout-form" method="post" action="logout.php">';
+    echo csrf_input();
     echo '<button class="sidebar-link sidebar-logout" type="submit">Đăng xuất</button>';
     echo '</form>';
     echo '</nav>';
@@ -148,11 +164,6 @@ function render_footer(): void
     }
     echo '</body>';
     echo '</html>';
-}
-
-function generic_error_message(): string
-{
-    return 'Có lỗi xảy ra, vui lòng thử lại sau.';
 }
 
 function render_student_form_fields(array $form, array $errors): void
