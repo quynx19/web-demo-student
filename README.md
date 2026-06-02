@@ -30,10 +30,11 @@ Tài khoản demo chỉ ghi trong README, không hiển thị trên trang đăng
 C:\xampp\htdocs\web-demo-student
 ```
 
-Start Apache và MySQL trong XAMPP, sau đó import database:
+Start Apache và MySQL trong XAMPP, sau đó import database. File `init.sql`
+đã chứa toàn bộ schema và dữ liệu mẫu hiện tại:
 
 ```powershell
-cmd /c "C:\xampp\mysql\bin\mysql.exe -u root < sql\init.sql"
+cmd /c "C:\xampp\mysql\bin\mysql.exe --default-character-set=utf8mb4 -u root < sql\init.sql"
 ```
 
 Mở trình duyệt:
@@ -62,10 +63,12 @@ Danh sách endpoint và ví dụ gọi API: [`docs/API.md`](docs/API.md).
 
 | Chức năng | Quản trị viên | Người dùng |
 | --- | --- | --- |
-| Xem Tổng quan | Có | Có |
-| Xem danh sách sinh viên | Có | Có |
-| Tìm kiếm, lọc sinh viên | Có | Có |
-| Xem chi tiết sinh viên | Có | Có |
+| Xem Tổng quan | Có | Không |
+| Xem danh sách sinh viên | Có | Không |
+| Tìm kiếm, lọc sinh viên | Có | Không |
+| Xem chi tiết sinh viên | Có | Không |
+| Xem điểm 3 môn | Có | Chỉ điểm của bản thân |
+| Cập nhật điểm 3 môn | Có | Không |
 | Thêm, sửa, xóa sinh viên | Có | Không |
 | Quản lý tài khoản | Có | Không |
 | Xem nhật ký ứng dụng | Có | Không |
@@ -73,7 +76,7 @@ Danh sách endpoint và ví dụ gọi API: [`docs/API.md`](docs/API.md).
 | Đổi mật khẩu | Có | Có |
 | Gọi API sinh viên | Có | Có |
 
-Nếu người dùng thường truy cập trực tiếp trang quản trị như `student_add.php`, hệ thống chuyển đến `access_denied.php` và ghi log `ACCESS_DENIED`.
+Nếu người dùng thường truy cập trực tiếp trang quản trị như `student_form.php`, hệ thống chuyển đến `access_denied.php` và ghi log `ACCESS_DENIED`.
 
 ## Test logout
 
@@ -87,14 +90,14 @@ Nếu người dùng thường truy cập trực tiếp trang quản trị như 
 ## Demo phân quyền
 
 1. Đăng nhập `admin / Admin@123`.
-2. Kiểm tra admin thấy menu: Tổng quan, Sinh viên, Thêm sinh viên, Quản lý tài khoản, Nhật ký ứng dụng, Hồ sơ cá nhân, Đổi mật khẩu, Đăng xuất.
+2. Kiểm tra admin thấy menu: Tổng quan, Sinh viên, Thêm sinh viên, Quản lý tài khoản, Nhật ký ứng dụng, Hồ sơ cá nhân, Đăng xuất.
 3. Thêm, sửa, xóa sinh viên.
 4. Xem nhật ký ứng dụng.
 5. Đăng xuất.
 6. Đăng nhập `user01 / User@123`.
 7. Kiểm tra user không thấy menu quản trị.
-8. Kiểm tra user chỉ thấy nút `Chi tiết` trong danh sách sinh viên.
-9. Truy cập trực tiếp `student_add.php` bằng user01 để sinh log `ACCESS_DENIED`.
+8. Kiểm tra user chỉ thấy menu Hồ sơ cá nhân và Đăng xuất.
+9. Truy cập trực tiếp `student_form.php` bằng user01 để sinh log `ACCESS_DENIED`.
 
 ## Xem log
 
@@ -113,6 +116,8 @@ Các event thường dùng khi demo:
 - `API_STUDENT_CREATED`
 - `API_STUDENT_UPDATED`
 - `API_STUDENT_DELETED`
+- `API_STUDENT_GRADES_VIEW`
+- `API_STUDENT_GRADES_UPDATED`
 - `API_USER_CREATED`
 - `API_USER_UPDATED`
 - `API_PASSWORD_CHANGED`

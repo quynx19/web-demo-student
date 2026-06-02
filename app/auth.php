@@ -25,10 +25,17 @@ function is_admin(): bool
     return current_user_role() === 'admin';
 }
 
+function current_student_id(): ?int
+{
+    $studentId = $_SESSION['student_id'] ?? null;
+
+    return is_int($studentId) && $studentId > 0 ? $studentId : null;
+}
+
 function login_user(string $username, string $password): bool
 {
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id, username, password_hash, full_name, email, role, status FROM users WHERE username = :username LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, student_id, username, password_hash, full_name, email, role, status FROM users WHERE username = :username LIMIT 1');
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
@@ -40,6 +47,7 @@ function login_user(string $username, string $password): bool
     if ($user && $user['status'] === 'active' && password_verify($password, $user['password_hash'])) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int) $user['id'];
+        $_SESSION['student_id'] = $user['student_id'] === null ? null : (int) $user['student_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['email'] = $user['email'];

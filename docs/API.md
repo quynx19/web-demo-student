@@ -12,18 +12,20 @@ require the `X-CSRF-Token` header.
 | `POST` | `/api/session` | Public | Log in |
 | `DELETE` | `/api/session` | Logged in | Log out |
 | `GET` | `/api/dashboard` | Logged in | Dashboard statistics |
-| `GET` | `/api/students` | Logged in | Paginated student list |
-| `GET` | `/api/students/{id}` | Logged in | Student detail |
+| `GET` | `/api/students` | Logged in | Paginated student list; regular users only receive their linked profile |
+| `GET` | `/api/students/{id}` | Logged in | Student detail; regular users can only access their linked profile |
 | `POST` | `/api/students` | Admin | Create student |
 | `PUT`, `PATCH` | `/api/students/{id}` | Admin | Update student |
 | `DELETE` | `/api/students/{id}` | Admin | Delete student |
+| `GET` | `/api/students/{id}/grades` | Logged in | Three subject grades; regular users can only access their linked profile |
+| `PUT` | `/api/students/{id}/grades` | Admin | Replace the three subject grades |
 | `GET` | `/api/users` | Admin | User list |
 | `GET` | `/api/users/{id}` | Admin | User detail |
 | `POST` | `/api/users` | Admin | Create user |
 | `PUT`, `PATCH` | `/api/users/{id}` | Admin | Update user or lock status |
 | `DELETE` | `/api/users/{id}` | Admin | Delete user |
 | `GET` | `/api/profile` | Logged in | Current profile |
-| `PATCH` | `/api/profile` | Logged in | Update profile and theme |
+| `PATCH` | `/api/profile` | Logged in | Update profile and theme; linked students also update their student name, email, and phone |
 | `PUT` | `/api/profile/password` | Logged in | Change password |
 | `GET` | `/api/logs` | Admin | Paginated application log |
 
@@ -38,10 +40,26 @@ fallback URLs remain available, for example:
 
 ```text
 /api/students.php?id=1
+/api/grades.php?student_id=1
 /api/users.php?id=1
 ```
 
-The legacy read endpoint `/api_students.php` is kept for compatibility.
+## Student Grades
+
+Each student has grades for three server-managed subjects: `MATH`,
+`PROGRAMMING`, and `DATABASE`. Update all scores together:
+
+```json
+{
+  "grades": [
+    { "subject_code": "MATH", "score": 8.5 },
+    { "subject_code": "PROGRAMMING", "score": 9 },
+    { "subject_code": "DATABASE", "score": 7.75 }
+  ]
+}
+```
+
+Each score must be between `0` and `10`.
 
 ## Student Filters
 

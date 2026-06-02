@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/auth.php';
 
 if (is_logged_in()) {
-    redirect('index.php');
+    redirect(landing_page());
 }
 
 render_header('Đăng nhập hệ thống');
@@ -28,6 +28,6 @@ render_header('Đăng nhập hệ thống');
         </div>
         <button class="btn btn-primary button-full" type="submit">Đăng nhập</button>
     </form>
-    <div class="login-footer">Demo REST API Application</div>
+    <div class="login-footer">Hệ thống quản lý hồ sơ sinh viên</div>
 </section>
 <?php render_footer(); ?>

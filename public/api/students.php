@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../app/api.php';
+require_once __DIR__ . '/../../app/grade.php';
 require_once __DIR__ . '/../../app/student.php';
 
 $allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
@@ -19,6 +20,9 @@ $id = api_resource_id();
 try {
     if ($method === 'GET' && $id === null) {
         $filters = normalize_student_filters($_GET);
+        if (!is_admin()) {
+            $filters['student_id'] = api_require_linked_student_id();
+        }
         $filterErrors = validate_student_filters($filters);
         if ($filterErrors !== []) {
             api_error('Invalid filters.', 422, $filterErrors);
@@ -38,6 +42,13 @@ try {
             'total' => $total,
         ]);
 
+        $filterOptions = is_admin()
+            ? ['majors' => list_student_majors(), 'years' => list_student_years()]
+            : [
+                'majors' => array_values(array_unique(array_filter(array_column($students, 'major')))),
+                'years' => array_values(array_unique(array_filter(array_column($students, 'year')))),
+            ];
+
         api_response([
             'data' => $students,
             'meta' => [
@@ -45,16 +56,14 @@ try {
                 'per_page' => $perPage,
                 'total' => $total,
                 'total_pages' => $total === 0 ? 0 : (int) ceil($total / $perPage),
-                'filter_options' => [
-                    'majors' => list_student_majors(),
-                    'years' => list_student_years(),
-                ],
+                'filter_options' => $filterOptions,
             ],
         ]);
     }
 
     if ($method === 'GET') {
         $studentId = api_require_resource_id($id);
+        api_require_student_access($studentId);
         $student = get_student($studentId);
 
         if ($student === null) {
@@ -80,6 +89,7 @@ try {
         }
 
         $studentId = create_student($data);
+        initialize_student_grades($studentId);
         $student = get_student($studentId);
         header('Location: students/' . $studentId);
         write_log('INFO', 'API_STUDENT_CREATED', 'Student created through API', ['student_id' => $studentId]);

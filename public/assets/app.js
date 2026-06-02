@@ -150,8 +150,8 @@
             clearErrors(loginForm);
 
             try {
-                await api('session', { method: 'POST', body: formValues(loginForm) });
-                window.location.href = 'index.php';
+                const payload = await api('session', { method: 'POST', body: formValues(loginForm) });
+                window.location.href = payload.data.role === 'admin' ? 'index.php' : 'profile.php';
             } catch (error) {
                 showErrors(loginForm, error);
             }
@@ -193,7 +193,7 @@
                 const actions = element('td', { className: 'actions' });
                 appendActionLink(actions, 'Chi tiết', `student_detail.php?id=${student.id}`, 'btn-primary');
                 if (studentList.dataset.admin === '1') {
-                    appendActionLink(actions, 'Sửa', `student_edit.php?id=${student.id}`, 'btn-warning');
+                    appendActionLink(actions, 'Sửa', `student_form.php?id=${student.id}`, 'btn-warning');
                     appendActionButton(actions, 'Xóa', 'btn-danger', async () => {
                         if (!window.confirm('Bạn có chắc chắn muốn xóa sinh viên này không?')) {
                             return;
@@ -267,9 +267,38 @@
             updated_at: 'Ngày cập nhật',
         };
 
-        api(`students/${studentDetail.dataset.studentId}`)
-            .then((payload) => {
-                const student = payload.data;
+        const gradesForm = document.querySelector('[data-grades-form]');
+        const gradesBody = document.querySelector('[data-student-grades]');
+        const studentId = studentDetail.dataset.studentId;
+
+        const renderGrades = (grades) => {
+            gradesBody.replaceChildren();
+            grades.forEach((grade) => {
+                const row = element('tr');
+                row.append(element('td', {}, grade.subject_code));
+                row.append(element('td', {}, grade.subject_name));
+                const scoreCell = element('td');
+                if (gradesForm.dataset.admin === '1') {
+                    scoreCell.append(element('input', {
+                        className: 'form-control',
+                        type: 'number',
+                        min: '0',
+                        max: '10',
+                        step: '0.01',
+                        value: grade.score,
+                        'data-grade-code': grade.subject_code,
+                    }));
+                } else {
+                    scoreCell.textContent = grade.score;
+                }
+                row.append(scoreCell);
+                gradesBody.append(row);
+            });
+        };
+
+        Promise.all([api(`students/${studentId}`), api(`students/${studentId}/grades`)])
+            .then(([studentPayload, gradesPayload]) => {
+                const student = studentPayload.data;
                 document.querySelector('[data-student-title]').textContent = student.full_name;
                 studentDetail.replaceChildren();
                 Object.entries(student).forEach(([key, value]) => {
@@ -278,8 +307,25 @@
                     card.append(element('strong', {}, value ?? ''));
                     studentDetail.append(card);
                 });
+                renderGrades(gradesPayload.data);
             })
             .catch((error) => window.alert(error.message));
+
+        gradesForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearErrors(gradesForm);
+
+            try {
+                const grades = [...gradesForm.querySelectorAll('[data-grade-code]')].map((input) => ({
+                    subject_code: input.dataset.gradeCode,
+                    score: input.value,
+                }));
+                const payload = await api(`students/${studentId}/grades`, { method: 'PUT', body: { grades } });
+                renderGrades(payload.data);
+            } catch (error) {
+                showErrors(gradesForm, error);
+            }
+        });
     }
 
     document.querySelectorAll('[data-delete-student]').forEach((button) => {
@@ -307,11 +353,11 @@
 
             payload.data.forEach((user) => {
                 const row = element('tr');
-                ['id', 'username', 'full_name', 'email', 'role', 'status'].forEach((key) => {
+                ['id', 'username', 'full_name', 'email', 'student_code', 'role', 'status'].forEach((key) => {
                     row.append(element('td', {}, user[key] ?? ''));
                 });
                 const actions = element('td', { className: 'actions' });
-                appendActionLink(actions, 'Sửa', `user_edit.php?id=${user.id}`, 'btn-warning');
+                appendActionLink(actions, 'Sửa', `user_form.php?id=${user.id}`, 'btn-warning');
 
                 if (String(user.id) !== userList.dataset.currentUserId) {
                     const nextStatus = user.status === 'active' ? 'locked' : 'active';
@@ -339,12 +385,20 @@
     const userForm = document.querySelector('[data-user-form]');
     if (userForm) {
         const userId = userForm.dataset.userId;
+        const studentSelect = userForm.querySelector('[data-student-account-select]');
+        const userRequest = userId ? api(`users/${userId}`) : Promise.resolve(null);
 
-        if (userId) {
-            api(`users/${userId}`)
-                .then((payload) => populateForm(userForm, payload.data))
-                .catch((error) => window.alert(error.message));
-        }
+        Promise.all([api('students?per_page=100'), userRequest])
+            .then(([studentsPayload, userPayload]) => {
+                studentSelect.replaceChildren(element('option', { value: '' }, '-- Chọn sinh viên --'));
+                studentsPayload.data.forEach((student) => {
+                    studentSelect.append(element('option', { value: student.id }, `${student.student_code} - ${student.full_name}`));
+                });
+                if (userPayload) {
+                    populateForm(userForm, userPayload.data);
+                }
+            })
+            .catch((error) => window.alert(error.message));
 
         userForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -368,10 +422,26 @@
 
         api('profile')
             .then((payload) => {
-                populateForm(form, payload.data);
+                const profile = payload.data.student ? { ...payload.data, ...payload.data.student } : payload.data;
+                populateForm(form, profile);
                 profilePage.querySelectorAll('[data-profile-field]').forEach((node) => {
-                    node.textContent = payload.data[node.dataset.profileField] ?? '';
+                    node.textContent = profile[node.dataset.profileField] ?? '';
                 });
+
+                if (payload.data.student) {
+                    profilePage.querySelectorAll('[data-profile-student-only]').forEach((node) => {
+                        node.hidden = false;
+                    });
+                    const gradesSection = profilePage.querySelector('[data-profile-grades-section]');
+                    gradesSection.hidden = false;
+                    const gradesBody = gradesSection.querySelector('[data-profile-grades]');
+                    gradesBody.replaceChildren();
+                    payload.data.grades.forEach((grade) => {
+                        const row = element('tr');
+                        ['subject_code', 'subject_name', 'score'].forEach((key) => row.append(element('td', {}, grade[key])));
+                        gradesBody.append(row);
+                    });
+                }
             })
             .catch((error) => window.alert(error.message));
 

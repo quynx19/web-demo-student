@@ -1,5 +1,5 @@
 :root {
-    --font-main: Arial, sans-serif;
+    --font-main: "Segoe UI", Tahoma, Arial, sans-serif;
     --bg: #f3f6fb;
     --sidebar: #0f172a;
     --sidebar-soft: #1e293b;
@@ -361,6 +361,15 @@ table {
     border-collapse: collapse;
     min-width: 980px;
     width: 100%;
+}
+
+.grades-table {
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.grades-actions {
+    justify-content: flex-end;
 }
 
 th,

@@ -5,6 +5,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/auth.php';
 
 require_login();
+if (!is_admin()) {
+    redirect('profile.php');
+}
 
 $filters = [
     'q' => field_value('q', $_GET),
@@ -17,10 +20,10 @@ render_header('Danh sách sinh viên');
 <section class="page-header">
     <div>
         <h1>Danh sách sinh viên</h1>
-        <p>Dữ liệu được tải từ REST API sinh viên.</p>
+        <p>Tra cứu và quản lý hồ sơ sinh viên.</p>
     </div>
     <?php if (is_admin()): ?>
-        <a class="btn btn-primary" href="student_add.php">Thêm sinh viên</a>
+        <a class="btn btn-primary" href="student_form.php">Thêm sinh viên</a>
     <?php endif; ?>
 </section>
 

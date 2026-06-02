@@ -11,7 +11,7 @@ render_header('Nhật ký ứng dụng');
 <section class="page-header">
     <div>
         <h1>Nhật ký hoạt động ứng dụng</h1>
-        <p>Dữ liệu log được tải từ REST API.</p>
+        <p>Theo dõi các hoạt động gần đây của hệ thống.</p>
     </div>
 </section>
 <section class="card">

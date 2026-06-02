@@ -17,11 +17,18 @@ if ($method !== 'GET') {
 }
 
 api_require_login();
+$studentFilters = is_admin() ? [] : ['student_id' => api_require_linked_student_id()];
 $payload = [
-    'student_count' => count_students(),
-    'major_stats' => count_students_by_major(),
-    'recent_students' => list_students([], 5, 0),
+    'student_count' => count_students($studentFilters),
+    'major_stats' => is_admin() ? count_students_by_major() : [],
+    'recent_students' => list_students($studentFilters, 5, 0),
 ];
+if (!is_admin() && $payload['recent_students'] !== []) {
+    $payload['major_stats'] = [[
+        'major' => $payload['recent_students'][0]['major'] ?: 'Chưa cập nhật',
+        'total' => 1,
+    ]];
+}
 $payload['major_count'] = count($payload['major_stats']);
 
 if (is_admin()) {

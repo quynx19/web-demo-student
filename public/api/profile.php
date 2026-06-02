@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../app/api.php';
+require_once __DIR__ . '/../../app/grade.php';
+require_once __DIR__ . '/../../app/student.php';
 require_once __DIR__ . '/../../app/user.php';
 
 $method = api_request_method();
@@ -58,12 +60,17 @@ if ($action !== '') {
 
 if ($method === 'GET') {
     write_log('INFO', 'API_PROFILE_VIEW', 'Profile API requested');
-    api_response(['data' => api_public_user($user)]);
+    $profile = api_public_user($user);
+    if ($user['student_id'] !== null) {
+        $profile['student'] = get_student((int) $user['student_id']);
+        $profile['grades'] = list_student_grades((int) $user['student_id']);
+    }
+    api_response(['data' => $profile]);
 }
 
 if ($method === 'PATCH') {
     api_require_csrf_token();
-    $data = api_extract_fields(api_read_json_body(), ['full_name', 'email', 'theme']);
+    $data = api_extract_fields(api_read_json_body(), ['full_name', 'email', 'phone', 'theme']);
     $profile = [
         'full_name' => field_value('full_name', $data, (string) $user['full_name']),
         'email' => field_value('email', $data, (string) $user['email']),
@@ -75,6 +82,24 @@ if ($method === 'PATCH') {
     }
     if ($errors !== []) {
         api_error('Validation failed.', 422, $errors);
+    }
+
+    if ($user['student_id'] !== null) {
+        $studentId = (int) $user['student_id'];
+        $student = get_student($studentId);
+        if ($student === null) {
+            api_error('Student not found.', 404);
+        }
+
+        $studentProfile = array_merge($student, $profile, [
+            'phone' => field_value('phone', $data, (string) $student['phone']),
+        ]);
+        $errors = validate_student($studentProfile, $studentId);
+        if ($errors !== []) {
+            api_error('Validation failed.', 422, $errors);
+        }
+
+        update_student($studentId, $studentProfile);
     }
 
     update_current_user_profile($userId, $profile);

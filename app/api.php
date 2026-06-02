@@ -59,6 +59,26 @@ function api_require_role(array|string $roles): void
     api_error('You do not have permission to perform this action.', 403);
 }
 
+function api_require_linked_student_id(): int
+{
+    $studentId = current_student_id();
+
+    if ($studentId === null) {
+        api_error('This account is not linked to a student profile.', 403);
+    }
+
+    return $studentId;
+}
+
+function api_require_student_access(int $studentId): void
+{
+    if (is_admin() || api_require_linked_student_id() === $studentId) {
+        return;
+    }
+
+    api_error('You can only access your own student profile.', 403);
+}
+
 function api_require_csrf_token(): void
 {
     $submittedToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';

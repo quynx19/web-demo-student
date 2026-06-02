@@ -1,6 +1,7 @@
 RewriteEngine On
 
 RewriteRule ^students/?$ students.php [L,QSA]
+RewriteRule ^students/([1-9][0-9]*)/grades/?$ grades.php?student_id=$1 [L,QSA]
 RewriteRule ^students/([1-9][0-9]*)/?$ students.php?id=$1 [L,QSA]
 RewriteRule ^session/?$ session.php [L,QSA]
 RewriteRule ^profile/?$ profile.php [L,QSA]

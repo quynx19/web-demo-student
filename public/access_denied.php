@@ -10,10 +10,12 @@ render_header('Không có quyền truy cập');
 ?>
 <section class="card centered-panel">
     <h1>Bạn không có quyền truy cập chức năng này.</h1>
-    <p>Vui lòng quay lại Tổng quan hoặc liên hệ quản trị viên nếu cần thêm quyền.</p>
+    <p>Vui lòng quay lại trang chính hoặc liên hệ quản trị viên nếu cần thêm quyền.</p>
     <div class="form-actions">
-        <a class="btn btn-primary" href="index.php">Về Tổng quan</a>
-        <a class="btn btn-secondary" href="students.php">Xem sinh viên</a>
+        <a class="btn btn-primary" href="<?= e(landing_page()) ?>">Quay lại</a>
+        <?php if (is_admin()): ?>
+            <a class="btn btn-secondary" href="students.php">Xem sinh viên</a>
+        <?php endif; ?>
     </div>
 </section>
 <?php render_footer(); ?>

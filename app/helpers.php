@@ -72,6 +72,11 @@ function role_label(?string $role): string
     return $role === 'admin' ? 'Quản trị viên' : 'Người dùng';
 }
 
+function landing_page(): string
+{
+    return ($_SESSION['role'] ?? '') === 'admin' ? 'index.php' : 'profile.php';
+}
+
 function render_header(string $title): void
 {
     $theme = current_theme();
@@ -81,18 +86,19 @@ function render_header(string $title): void
     $role = $_SESSION['role'] ?? '';
 
     $navItems = $isLoggedIn ? [
-        'index.php' => 'Tổng quan',
-        'students.php' => 'Sinh viên',
         'profile.php' => 'Hồ sơ cá nhân',
-        'change_password.php' => 'Đổi mật khẩu',
     ] : [
         'login.php' => 'Đăng nhập',
     ];
 
     if ($role === 'admin') {
-        $navItems = array_slice($navItems, 0, 2, true)
-            + ['student_add.php' => 'Thêm sinh viên', 'users.php' => 'Quản lý tài khoản', 'logs.php' => 'Nhật ký ứng dụng']
-            + array_slice($navItems, 2, null, true);
+        $navItems = [
+            'index.php' => 'Tổng quan',
+            'students.php' => 'Sinh viên',
+            'student_form.php' => 'Thêm sinh viên',
+            'users.php' => 'Quản lý tài khoản',
+            'logs.php' => 'Nhật ký ứng dụng',
+        ] + $navItems;
     }
 
     echo '<!doctype html>';
@@ -102,8 +108,8 @@ function render_header(string $title): void
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
     echo '<meta name="csrf-token" content="' . e(csrf_token()) . '">';
     echo '<title>' . e($title) . ' - Hồ sơ sinh viên</title>';
-    echo '<link rel="stylesheet" href="assets/style.css">';
-    echo '<script src="assets/app.js" defer></script>';
+    echo '<link rel="stylesheet" href="assets/style.css?v=20260602-2">';
+    echo '<script src="assets/app.js?v=20260602-2" defer></script>';
     echo '</head>';
     echo '<body class="theme-' . e($theme) . '">';
 
@@ -114,7 +120,7 @@ function render_header(string $title): void
 
     echo '<div class="app-layout">';
     echo '<aside class="sidebar">';
-    echo '<a class="sidebar-brand" href="index.php"><span>HS</span><strong>Hồ sơ sinh viên</strong></a>';
+    echo '<a class="sidebar-brand" href="' . e(landing_page()) . '"><span>HS</span><strong>Hồ sơ sinh viên</strong></a>';
     echo '<nav class="sidebar-nav">';
     foreach ($navItems as $href => $label) {
         $active = $currentPage === $href ? ' active' : '';

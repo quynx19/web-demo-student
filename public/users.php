@@ -11,9 +11,9 @@ render_header('Quản lý tài khoản');
 <section class="page-header">
     <div>
         <h1>Quản lý tài khoản</h1>
-        <p>Dữ liệu tài khoản được tải và cập nhật qua REST API.</p>
+        <p>Quản lý tài khoản và sinh viên được liên kết.</p>
     </div>
-    <a class="btn btn-primary" href="user_add.php">Thêm tài khoản</a>
+    <a class="btn btn-primary" href="user_form.php">Thêm tài khoản</a>
 </section>
 
 <?php render_flash(); ?>
@@ -26,12 +26,13 @@ render_header('Quản lý tài khoản');
                 <th>Tên đăng nhập</th>
                 <th>Họ tên</th>
                 <th>Email</th>
+                <th>Sinh viên liên kết</th>
                 <th>Vai trò</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
         </thead>
-        <tbody><tr><td colspan="7" class="empty-state">Đang tải dữ liệu...</td></tr></tbody>
+        <tbody><tr><td colspan="8" class="empty-state">Đang tải dữ liệu...</td></tr></tbody>
     </table>
 </section>
 <?php render_footer(); ?>
