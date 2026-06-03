@@ -16,6 +16,7 @@ function grade_subjects(): array
 
 function list_student_grades(int $studentId): array
 {
+    $subjects = grade_subjects();
     $stmt = get_pdo()->prepare(
         'SELECT id, student_id, subject_code, subject_name, score, created_at, updated_at
          FROM student_grades
@@ -24,14 +25,21 @@ function list_student_grades(int $studentId): array
     );
     $stmt->execute(['student_id' => $studentId]);
 
-    return $stmt->fetchAll();
+    $grades = $stmt->fetchAll();
+    foreach ($grades as &$grade) {
+        $grade['subject_name'] = $subjects[$grade['subject_code']] ?? $grade['subject_name'];
+    }
+    unset($grade);
+
+    return $grades;
 }
 
 function initialize_student_grades(int $studentId): void
 {
     $stmt = get_pdo()->prepare(
-        'INSERT IGNORE INTO student_grades (student_id, subject_code, subject_name, score)
-         VALUES (:student_id, :subject_code, :subject_name, 0)'
+        'INSERT INTO student_grades (student_id, subject_code, subject_name, score)
+         VALUES (:student_id, :subject_code, :subject_name, 0)
+         ON DUPLICATE KEY UPDATE subject_name = VALUES(subject_name)'
     );
 
     foreach (grade_subjects() as $subjectCode => $subjectName) {

@@ -44,7 +44,7 @@ write_log('INFO', 'USER_LIST_VIEW', 'User list viewed');
 render_header('Quản lý tài khoản');
 ?>
 <section class="page-header">
-    <div><h1>Quản lý tài khoản</h1><p>Quản lý tài khoản và sinh viên được liên kết.</p></div>
+    <div><h1>Quản lý tài khoản</h1><p>Quản lý trạng thái tài khoản. Sinh viên mới nên được tạo từ chức năng Thêm sinh viên để tự động liên kết tài khoản.</p></div>
     <a class="btn btn-primary" href="user_form.php">Thêm tài khoản</a>
 </section>
 <?php render_flash(); ?>

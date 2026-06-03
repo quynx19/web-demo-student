@@ -45,7 +45,7 @@ if (is_post()) {
 $students = list_students();
 render_header($isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản');
 ?>
-<section class="page-header"><div><h1><?= $isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản' ?></h1><p><?= $isEdit ? 'Chỉnh sửa thông tin và trạng thái tài khoản.' : 'Tạo tài khoản và chọn sinh viên liên kết.' ?></p></div></section>
+<section class="page-header"><div><h1><?= $isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản' ?></h1><p><?= $isEdit ? 'Chỉnh sửa thông tin và trạng thái tài khoản.' : 'Dùng để tạo tài khoản quản trị hoặc khôi phục tài khoản cho sinh viên đã có hồ sơ. Sinh viên mới nên tạo từ trang Thêm sinh viên.' ?></p></div></section>
 <section class="card">
     <?php if (isset($errors['form'])): ?><div class="alert alert-danger"><?= e($errors['form']) ?></div><?php endif; ?>
     <form method="post" class="form form-grid">

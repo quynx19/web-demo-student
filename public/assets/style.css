@@ -263,6 +263,15 @@ a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.form-section-title {
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding-top: 16px;
+}
+
 .search-form,
 .filter-form {
     align-items: end;

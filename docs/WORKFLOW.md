@@ -1,6 +1,6 @@
 # Workflow chức năng
 
-Tài liệu này mô tả luồng xử lý chính của 3 chức năng: đăng nhập, xem sinh viên và đổi mật khẩu.
+Tài liệu này mô tả luồng xử lý chính của các chức năng: đăng nhập, xem/thêm sinh viên và đổi mật khẩu.
 
 ## 1. Đăng nhập
 
@@ -83,6 +83,27 @@ Ghi chú:
 - Chức năng xem danh sách sinh viên chỉ dành cho admin.
 - Sinh viên thường không vào được `students.php`; nếu truy cập trực tiếp sẽ bị chuyển sang `access_denied.php`.
 - Mỗi lần xem danh sách sinh viên có ghi log `STUDENT_LIST_VIEW`.
+- Khi admin thêm sinh viên mới ở `student_form.php`, hệ thống tạo luôn tài khoản `user` liên kết với sinh viên đó.
+- Nếu xóa sinh viên, tài khoản sinh viên liên kết cũng bị xóa để không còn tài khoản không gắn với hồ sơ sinh viên.
+- Trang nhật ký ứng dụng chỉ hiển thị 20 dòng log mới nhất sau khi lọc.
+
+Luồng thêm sinh viên kèm tài khoản:
+
+```mermaid
+flowchart TD
+    A["Admin mở student_form.php"] --> B["Nhập thông tin sinh viên"]
+    B --> C["Nhập tài khoản đăng nhập: username, mật khẩu ban đầu, trạng thái"]
+    C --> D["Submit POST kèm CSRF token"]
+    D --> E{"CSRF và dữ liệu hợp lệ?"}
+    E -- "Không" --> F["Hiển thị lỗi trên form"]
+    E -- "Có" --> G["Bắt đầu transaction database"]
+    G --> H["create_student() tạo hồ sơ sinh viên"]
+    H --> I["initialize_student_grades() tạo điểm 3 môn"]
+    I --> J["create_user() tạo tài khoản role user gắn student_id"]
+    J --> K["Commit transaction"]
+    K --> L["Ghi log STUDENT_CREATED và USER_CREATED"]
+    L --> M["Redirect về students.php"]
+```
 
 ## 3. Đổi mật khẩu
 

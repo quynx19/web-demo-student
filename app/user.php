@@ -97,6 +97,10 @@ function validate_user_data(array $data, bool $requirePassword = false, ?int $ex
     $status = field_value('status', $data, 'active');
     $studentId = user_student_id($data);
 
+    if ($role === 'admin') {
+        $studentId = null;
+    }
+
     if ($username === '') {
         $errors['username'] = 'Tên đăng nhập không được để trống.';
     } elseif (username_exists($username, $excludeId)) {
@@ -125,6 +129,37 @@ function validate_user_data(array $data, bool $requirePassword = false, ?int $ex
         $errors['student_id'] = 'Tài khoản sinh viên phải được liên kết với một sinh viên.';
     } elseif ($studentId !== null && student_account_exists($studentId, $excludeId)) {
         $errors['student_id'] = 'Sinh viên này đã có tài khoản.';
+    }
+
+    return $errors;
+}
+
+function normalize_student_account_data(array $data): array
+{
+    return [
+        'account_username' => field_value('account_username', $data),
+        'account_password' => (string) ($data['account_password'] ?? ''),
+        'account_status' => field_value('account_status', $data, 'active'),
+    ];
+}
+
+function validate_student_account_data(array $data): array
+{
+    $errors = [];
+    $account = normalize_student_account_data($data);
+
+    if ($account['account_username'] === '') {
+        $errors['account_username'] = 'Tên đăng nhập không được để trống.';
+    } elseif (username_exists($account['account_username'])) {
+        $errors['account_username'] = 'Tên đăng nhập đã tồn tại.';
+    }
+
+    if (strlen($account['account_password']) < 6) {
+        $errors['account_password'] = 'Mật khẩu ban đầu phải tối thiểu 6 ký tự.';
+    }
+
+    if (!in_array($account['account_status'], ['active', 'locked'], true)) {
+        $errors['account_status'] = 'Trạng thái tài khoản không hợp lệ.';
     }
 
     return $errors;
@@ -183,6 +218,17 @@ function update_current_user_profile(int $id, array $data): void
         'id' => $id,
         'full_name' => field_value('full_name', $data),
         'email' => field_value('email', $data),
+    ]);
+}
+
+function update_linked_student_account(int $studentId, array $student): void
+{
+    $stmt = get_pdo()->prepare('UPDATE users SET full_name = :full_name, email = :email WHERE student_id = :student_id AND role = :role');
+    $stmt->execute([
+        'student_id' => $studentId,
+        'full_name' => field_value('full_name', $student),
+        'email' => field_value('email', $student),
+        'role' => 'user',
     ]);
 }
 

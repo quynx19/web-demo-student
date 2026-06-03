@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uq_users_student_id (student_id),
-    CONSTRAINT fk_users_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
+    CONSTRAINT fk_users_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Keep this file safe to run against databases created by older project versions.
@@ -64,13 +64,22 @@ SET @users_student_fk_exists = (
       AND constraint_name = 'fk_users_student'
 );
 SET @users_student_fk_sql = IF(
-    @users_student_fk_exists = 0,
-    'ALTER TABLE users ADD CONSTRAINT fk_users_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL',
+    @users_student_fk_exists = 1,
+    'ALTER TABLE users DROP FOREIGN KEY fk_users_student',
     'SELECT 1'
 );
 PREPARE users_student_fk_stmt FROM @users_student_fk_sql;
 EXECUTE users_student_fk_stmt;
 DEALLOCATE PREPARE users_student_fk_stmt;
+
+UPDATE users
+LEFT JOIN students ON students.id = users.student_id
+SET users.student_id = NULL
+WHERE users.student_id IS NOT NULL
+  AND students.id IS NULL;
+
+ALTER TABLE users
+    ADD CONSTRAINT fk_users_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE;
 
 CREATE TABLE IF NOT EXISTS student_grades (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -131,3 +140,12 @@ WHERE students.student_code IN ('SV001', 'SV002', 'SV003', 'SV004', 'SV005')
 ON DUPLICATE KEY UPDATE
     subject_name = VALUES(subject_name),
     score = VALUES(score);
+
+UPDATE student_grades
+SET subject_name = CASE subject_code
+    WHEN 'MATH' THEN 'Toán'
+    WHEN 'PROGRAMMING' THEN 'Lập trình'
+    WHEN 'DATABASE' THEN 'Cơ sở dữ liệu'
+    ELSE subject_name
+END
+WHERE subject_code IN ('MATH', 'PROGRAMMING', 'DATABASE');

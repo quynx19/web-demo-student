@@ -214,8 +214,21 @@ function update_student(int $id, array $data): void
 
 function delete_student(int $id): bool
 {
-    $stmt = get_pdo()->prepare('DELETE FROM students WHERE id = :id');
-    $stmt->execute(['id' => $id]);
+    $pdo = get_pdo();
+    $pdo->beginTransaction();
 
-    return $stmt->rowCount() > 0;
+    try {
+        $userStmt = $pdo->prepare('DELETE FROM users WHERE student_id = :id AND role = :role');
+        $userStmt->execute(['id' => $id, 'role' => 'user']);
+
+        $stmt = $pdo->prepare('DELETE FROM students WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $deleted = $stmt->rowCount() > 0;
+
+        $pdo->commit();
+        return $deleted;
+    } catch (Throwable $exception) {
+        $pdo->rollBack();
+        throw $exception;
+    }
 }

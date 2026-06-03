@@ -13,7 +13,7 @@ $lines = is_file($logFile) ? file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EM
 if ($keyword !== '') {
     $lines = array_values(array_filter($lines, fn (string $line): bool => stripos($line, $keyword) !== false));
 }
-$lines = array_slice(array_reverse($lines), 0, 100);
+$lines = array_slice(array_reverse($lines), 0, 20);
 
 write_log('INFO', 'LOG_VIEW', 'Application log viewed', ['keyword' => $keyword]);
 render_header('Nhật ký ứng dụng');
