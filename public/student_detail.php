@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Chi tiết sinh viên: xem hồ sơ học tập và cập nhật điểm 3 môn.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/grade.php';
 require_once __DIR__ . '/../app/student.php';

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Form tài khoản: dùng chung cho tạo và chỉnh sửa tài khoản người dùng.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/student.php';
 require_once __DIR__ . '/../app/user.php';

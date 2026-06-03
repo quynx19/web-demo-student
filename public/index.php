@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Trang tổng quan dành cho quản trị viên.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/student.php';
 require_once __DIR__ . '/../app/user.php';

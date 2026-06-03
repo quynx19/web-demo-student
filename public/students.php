@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Danh sách sinh viên: tìm kiếm, lọc, mở chi tiết và xóa sinh viên.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/student.php';
 

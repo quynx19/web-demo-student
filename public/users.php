@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Quản lý tài khoản: danh sách, khóa/mở khóa, xóa và mở form chỉnh sửa user.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/user.php';
 

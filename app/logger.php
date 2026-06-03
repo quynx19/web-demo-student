@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Nhật ký ứng dụng: ghi lại thao tác người dùng vào file logs/app.log.
 function write_log(string $level, string $event, string $message, array $context = []): void
 {
     $logFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'app.log';

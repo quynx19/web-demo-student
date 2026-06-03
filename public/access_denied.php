@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Trang báo lỗi khi người dùng không có quyền truy cập chức năng.
 require_once __DIR__ . '/../app/auth.php';
 
 require_login();

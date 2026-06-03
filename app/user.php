@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Quản lý tài khoản: CRUD user, liên kết sinh viên và đổi/cập nhật thông tin tài khoản.
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/helpers.php';
 

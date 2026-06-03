@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Kết nối database: tạo PDO dùng chung cho toàn bộ hệ thống.
 function get_pdo(): PDO
 {
     static $pdo = null;

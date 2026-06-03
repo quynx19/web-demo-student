@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Nhật ký ứng dụng: hiển thị và lọc các dòng log thao tác trong logs/app.log.
 require_once __DIR__ . '/../app/auth.php';
 
 require_role('admin');

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Form sinh viên: dùng chung cho thêm mới và chỉnh sửa thông tin sinh viên.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/grade.php';
 require_once __DIR__ . '/../app/student.php';

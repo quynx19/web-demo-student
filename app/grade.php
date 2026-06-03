@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Quản lý điểm: danh sách 3 môn cố định và thao tác lưu/xem điểm sinh viên.
 require_once __DIR__ . '/../config/database.php';
 
 function grade_subjects(): array

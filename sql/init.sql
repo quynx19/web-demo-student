@@ -1,3 +1,4 @@
+-- Khởi tạo toàn bộ database: schema, dữ liệu mẫu và điểm 3 môn cho hệ thống hồ sơ sinh viên.
 CREATE DATABASE IF NOT EXISTS web_demo_student
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;

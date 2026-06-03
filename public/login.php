@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Trang đăng nhập: xác thực tài khoản và chuyển hướng theo vai trò.
 require_once __DIR__ . '/../app/auth.php';
 
 if (is_logged_in()) {

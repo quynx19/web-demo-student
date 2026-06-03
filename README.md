@@ -59,3 +59,7 @@ logs/app.log         Nhật ký ứng dụng
 
 Các form submit trực tiếp bằng `POST` tới trang PHP. Sau khi xử lý thành công,
 hệ thống redirect về trang danh sách hoặc hồ sơ tương ứng.
+
+## Tài liệu workflow
+
+- `docs/WORKFLOW.md`: workflow đăng nhập, xem sinh viên và đổi mật khẩu.

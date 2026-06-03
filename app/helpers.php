@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Helper dùng chung: bảo mật form, giao diện, flash message và render layout.
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 error_reporting(E_ALL);
@@ -56,21 +57,31 @@ function current_theme(): string
     return ($_COOKIE['theme'] ?? 'light') === 'dark' ? 'dark' : 'light';
 }
 
-function set_flash(string $message): void
+function set_flash(string $message, string $type = 'danger'): void
 {
-    $_SESSION['flash'] = $message;
+    $_SESSION['flash'] = [
+        'message' => $message,
+        'type' => in_array($type, ['danger', 'success'], true) ? $type : 'danger',
+    ];
 }
 
-function get_flash(): ?string
+function get_flash(): ?array
 {
     if (!isset($_SESSION['flash'])) {
         return null;
     }
 
-    $flash = (string) $_SESSION['flash'];
+    $flash = $_SESSION['flash'];
     unset($_SESSION['flash']);
 
-    return $flash;
+    if (is_array($flash)) {
+        return [
+            'message' => (string) ($flash['message'] ?? ''),
+            'type' => in_array($flash['type'] ?? '', ['danger', 'success'], true) ? (string) $flash['type'] : 'danger',
+        ];
+    }
+
+    return ['message' => (string) $flash, 'type' => 'danger'];
 }
 
 function render_flash(): void
@@ -81,7 +92,7 @@ function render_flash(): void
         return;
     }
 
-    echo '<div class="alert alert-danger">' . e($flash) . '</div>';
+    echo '<div class="alert alert-' . e($flash['type']) . '">' . e($flash['message']) . '</div>';
 }
 
 function role_label(?string $role): string
@@ -104,6 +115,7 @@ function render_header(string $title): void
 
     $navItems = $isLoggedIn ? [
         'profile.php' => 'Hồ sơ cá nhân',
+        'password.php' => 'Đổi mật khẩu',
     ] : [
         'login.php' => 'Đăng nhập',
     ];

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Xác thực và phân quyền: quản lý session đăng nhập, đăng xuất và kiểm tra vai trò.
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/logger.php';
