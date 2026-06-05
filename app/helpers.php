@@ -154,7 +154,6 @@ function render_header(string $title): void
         echo '<a class="sidebar-link' . $active . '" href="' . e($href) . '">' . e($label) . '</a>';
     }
     echo '<form class="sidebar-logout-form" method="post" action="logout.php">';
-    echo csrf_input();
     echo '<button class="sidebar-link sidebar-logout" type="submit">Đăng xuất</button>';
     echo '</form>';
     echo '</nav>';

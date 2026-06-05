@@ -272,10 +272,9 @@ a:hover {
     padding-top: 16px;
 }
 
-.search-form,
-.filter-form {
+.search-form {
     align-items: end;
-    grid-template-columns: minmax(260px, 1fr) 210px 180px auto auto;
+    grid-template-columns: minmax(260px, 1fr) auto auto;
 }
 
 label {
@@ -452,31 +451,6 @@ td {
     text-align: center;
 }
 
-.pagination {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin: 18px 0;
-}
-
-.pagination a {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-weight: 800;
-    min-width: 38px;
-    padding: 8px 12px;
-    text-align: center;
-}
-
-.pagination a.active,
-.pagination a:hover {
-    background: var(--primary);
-    color: #ffffff;
-}
-
 .quick-links {
     display: grid;
     gap: 12px;
@@ -622,7 +596,7 @@ code {
     .quick-links,
     .form-grid,
     .search-form,
-    .filter-form {
+    .search-form {
         grid-template-columns: 1fr;
     }
 }

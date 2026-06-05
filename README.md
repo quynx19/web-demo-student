@@ -1,8 +1,7 @@
 # Hồ sơ sinh viên
 
-Ứng dụng PHP thuần quản lý hồ sơ sinh viên chạy trên XAMPP. Hệ thống dùng PHP
-session, phân quyền, PDO prepared statements, CSRF token, cookie giao diện và
-application log.
+Ứng dụng PHP thuần quản lý hồ sơ sinh viên chạy local trên XAMPP. Hệ thống dùng PHP
+session, cookie, phân quyền đơn giản, PDO prepared statements và application log.
 
 ## Công nghệ
 
@@ -11,6 +10,7 @@ application log.
 - Apache và MySQL/MariaDB trong XAMPP.
 - PDO và prepared statements.
 - `password_hash()` và `password_verify()`.
+- Đăng nhập/đăng xuất dùng session; cookie dùng để lưu giao diện và username gần nhất.
 
 ## Chạy ứng dụng
 
@@ -52,6 +52,7 @@ http://localhost/web-demo-student/public/login.php
 - Admin sửa sinh viên thì họ tên/email của tài khoản liên kết được đồng bộ theo.
 - Admin xóa sinh viên thì tài khoản sinh viên liên kết và điểm của sinh viên đó cũng bị xóa.
 - Người dùng sinh viên đăng nhập bằng tài khoản do admin tạo và chỉ xem/cập nhật hồ sơ cá nhân, xem điểm, đổi mật khẩu.
+- Danh sách sinh viên chỉ giữ tìm kiếm nhanh theo mã, họ tên hoặc email; đã bỏ lọc ngành/năm và phân trang.
 - Nhật ký ứng dụng hiển thị 20 log mới nhất sau khi lọc.
 
 ## Cấu trúc chính

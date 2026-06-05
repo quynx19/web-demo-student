@@ -11,7 +11,7 @@ require_role('admin');
 
 $logFile = __DIR__ . '/../logs/app.log';
 $majorStats = count_students_by_major();
-$recentStudents = list_students([], 5, 0);
+$recentStudents = list_students('', 5, 0);
 $recentLogCount = is_file($logFile)
     ? count(array_slice(file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [], -100))
     : 0;

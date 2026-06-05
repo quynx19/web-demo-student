@@ -21,41 +21,34 @@ $student = $user['student_id'] === null ? null : get_student((int) $user['studen
 $profileErrors = [];
 
 if (is_post()) {
-    if (!valid_csrf_token()) {
-        $profileErrors['form'] = 'Phiên làm việc không hợp lệ, vui lòng thử lại.';
-    } else {
-        $profileForm = [
-            'full_name' => field_value('full_name', $_POST),
-            'email' => field_value('email', $_POST),
-        ];
+    $profileForm = [
+        'full_name' => field_value('full_name', $_POST),
+        'email' => field_value('email', $_POST),
+    ];
 
-        if ($profileForm['email'] === '' || !filter_var($profileForm['email'], FILTER_VALIDATE_EMAIL)) {
-            $profileErrors['email'] = 'Email không đúng định dạng.';
-        }
+    if ($profileForm['email'] === '' || !filter_var($profileForm['email'], FILTER_VALIDATE_EMAIL)) {
+        $profileErrors['email'] = 'Email không đúng định dạng.';
+    }
 
+    if ($student !== null) {
+        $studentForm = array_merge($student, $profileForm, [
+            'phone' => field_value('phone', $_POST, (string) $student['phone']),
+        ]);
+        $profileErrors = array_merge($profileErrors, validate_student($studentForm, (int) $student['id']));
+    }
+
+    if ($profileErrors === []) {
+        update_current_user_profile($userId, $profileForm);
         if ($student !== null) {
-            $studentForm = array_merge($student, $profileForm, [
-                'phone' => field_value('phone', $_POST, (string) $student['phone']),
-            ]);
-            $profileErrors = array_merge($profileErrors, validate_student($studentForm, (int) $student['id']));
+            update_student((int) $student['id'], $studentForm);
         }
-
-        if ($profileErrors === []) {
-            update_current_user_profile($userId, $profileForm);
-            if ($student !== null) {
-                update_student((int) $student['id'], $studentForm);
-            }
-            $_SESSION['full_name'] = $profileForm['full_name'];
-            $_SESSION['email'] = $profileForm['email'];
-            setcookie('theme', ($_POST['theme'] ?? '') === 'dark' ? 'dark' : 'light', [
-                'expires' => time() + 30 * 24 * 60 * 60,
-                'path' => '/',
-                'samesite' => 'Lax',
-            ]);
-            set_flash('Hồ sơ đã được cập nhật.', 'success');
-            write_log('INFO', 'PROFILE_UPDATED', 'Profile updated');
-            redirect('profile.php');
-        }
+        setcookie('theme', ($_POST['theme'] ?? '') === 'dark' ? 'dark' : 'light', [
+            'expires' => time() + 30 * 24 * 60 * 60,
+            'path' => '/',
+            'samesite' => 'Lax',
+        ]);
+        set_flash('Hồ sơ đã được cập nhật.', 'success');
+        redirect('profile.php');
     }
 }
 
@@ -64,7 +57,6 @@ $student = $user['student_id'] === null ? null : get_student((int) $user['studen
 $profile = $student === null ? $user : array_merge($user, $student);
 $grades = $student === null ? [] : list_student_grades((int) $student['id']);
 
-write_log('INFO', 'PROFILE_VIEW', 'Profile viewed');
 render_header('Hồ sơ cá nhân');
 ?>
 <section class="page-header">
@@ -89,7 +81,6 @@ render_header('Hồ sơ cá nhân');
     <h2>Cập nhật hồ sơ</h2>
     <?php if (isset($profileErrors['form'])): ?><div class="alert alert-danger"><?= e($profileErrors['form']) ?></div><?php endif; ?>
     <form method="post" class="form form-grid">
-        <?= csrf_input() ?>
         <div>
             <label for="full_name">Họ tên</label>
             <input class="form-control" id="full_name" name="full_name" value="<?= e($profile['full_name']) ?>">

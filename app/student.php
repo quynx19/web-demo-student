@@ -60,55 +60,23 @@ function validate_student(array $data, ?int $excludeId = null): array
     return $errors;
 }
 
-function normalize_student_filters(array $filters): array
+function student_search_sql(string $keyword, array &$params): string
 {
-    return [
-        'q' => trim((string) ($filters['q'] ?? '')),
-        'major' => trim((string) ($filters['major'] ?? '')),
-        'year' => trim((string) ($filters['year'] ?? '')),
-    ];
+    if ($keyword === '') {
+        return '';
+    }
+
+    $params['student_code'] = '%' . $keyword . '%';
+    $params['full_name'] = '%' . $keyword . '%';
+    $params['email'] = '%' . $keyword . '%';
+
+    return ' WHERE student_code LIKE :student_code OR full_name LIKE :full_name OR email LIKE :email';
 }
 
-function validate_student_filters(array $filters): array
-{
-    $errors = [];
-    $filters = normalize_student_filters($filters);
-
-    if ($filters['year'] !== '' && (!ctype_digit($filters['year']) || (int) $filters['year'] < 1 || (int) $filters['year'] > 6)) {
-        $errors['year'] = 'Năm học phải từ 1 đến 6.';
-    }
-
-    return $errors;
-}
-
-function student_filter_sql(array $filters, array &$params): string
-{
-    $filters = normalize_student_filters($filters);
-    $where = [];
-
-    if ($filters['q'] !== '') {
-        $where[] = '(student_code LIKE :q OR full_name LIKE :q OR email LIKE :q)';
-        $params['q'] = '%' . $filters['q'] . '%';
-    }
-
-    if ($filters['major'] !== '') {
-        $where[] = 'major = :major';
-        $params['major'] = $filters['major'];
-    }
-
-    if ($filters['year'] !== '') {
-        $where[] = 'year = :year';
-        $params['year'] = (int) $filters['year'];
-    }
-
-    return $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
-}
-
-function list_students(string|array $filters = '', int $limit = 0, int $offset = 0): array
+function list_students(string $keyword = '', int $limit = 0, int $offset = 0): array
 {
     $params = [];
-    $filterArray = is_array($filters) ? $filters : ['q' => $filters];
-    $where = student_filter_sql($filterArray, $params);
+    $where = student_search_sql(trim($keyword), $params);
     $sql = 'SELECT * FROM students' . $where . ' ORDER BY id DESC';
 
     if ($limit > 0) {
@@ -128,28 +96,14 @@ function list_students(string|array $filters = '', int $limit = 0, int $offset =
     return $stmt->fetchAll();
 }
 
-function count_students(array $filters = []): int
+function count_students(string $keyword = ''): int
 {
     $params = [];
-    $where = student_filter_sql($filters, $params);
+    $where = student_search_sql(trim($keyword), $params);
     $stmt = get_pdo()->prepare('SELECT COUNT(*) FROM students' . $where);
     $stmt->execute($params);
 
     return (int) $stmt->fetchColumn();
-}
-
-function list_student_majors(): array
-{
-    $stmt = get_pdo()->query("SELECT DISTINCT major FROM students WHERE major IS NOT NULL AND major <> '' ORDER BY major");
-
-    return array_column($stmt->fetchAll(), 'major');
-}
-
-function list_student_years(): array
-{
-    $stmt = get_pdo()->query('SELECT DISTINCT year FROM students WHERE year IS NOT NULL ORDER BY year');
-
-    return array_column($stmt->fetchAll(), 'year');
 }
 
 function count_students_by_major(): array

@@ -28,38 +28,27 @@ function is_admin(): bool
 
 function login_user(string $username, string $password): bool
 {
-    $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id, student_id, username, password_hash, full_name, email, role, status FROM users WHERE username = :username LIMIT 1');
+    $stmt = get_pdo()->prepare('SELECT id, username, password_hash, role, status FROM users WHERE username = :username LIMIT 1');
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
-    if ($user && $user['status'] === 'locked') {
-        write_log('WARNING', 'LOGIN_FAILED', 'Locked account login attempt', ['username' => $username]);
+    if (!$user || $user['status'] !== 'active' || !password_verify($password, $user['password_hash'])) {
         return false;
     }
 
-    if ($user && $user['status'] === 'active' && password_verify($password, $user['password_hash'])) {
-        session_regenerate_id(true);
-        $_SESSION['user_id'] = (int) $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['full_name'] = $user['full_name'];
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['status'] = $user['status'];
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = (int) $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['role'] = $user['role'];
 
-        setcookie('last_username', $user['username'], [
-            'expires' => time() + 30 * 24 * 60 * 60,
-            'path' => '/',
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
+    setcookie('last_username', $user['username'], [
+        'expires' => time() + 30 * 24 * 60 * 60,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
 
-        write_log('INFO', 'LOGIN_SUCCESS', 'Login success', ['user_id' => (int) $user['id']]);
-        return true;
-    }
-
-    write_log('WARNING', 'LOGIN_FAILED', 'Invalid login attempt', ['username' => $username]);
-    return false;
+    return true;
 }
 
 function require_login(): void
@@ -68,9 +57,6 @@ function require_login(): void
         return;
     }
 
-    write_log('WARNING', 'PAGE_ACCESS', 'Unauthenticated access blocked', [
-        'target' => $_SERVER['REQUEST_URI'] ?? '',
-    ]);
     redirect('login.php');
 }
 
@@ -83,19 +69,11 @@ function require_role(array|string $roles): void
         return;
     }
 
-    write_log('WARNING', 'ACCESS_DENIED', 'Role access denied', [
-        'required_roles' => $allowedRoles,
-        'current_role' => current_user_role(),
-        'target' => $_SERVER['REQUEST_URI'] ?? '',
-    ]);
-
     redirect('access_denied.php');
 }
 
 function logout_current_user(): void
 {
-    write_log('INFO', 'LOGOUT', 'User logged out');
-
     $_SESSION = [];
 
     if (ini_get('session.use_cookies')) {

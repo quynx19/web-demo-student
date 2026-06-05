@@ -18,30 +18,26 @@ if ($user === null) {
 $errors = [];
 
 if (is_post()) {
-    if (!valid_csrf_token()) {
-        $errors['form'] = 'Phiên làm việc không hợp lệ, vui lòng thử lại.';
-    } else {
-        $currentPassword = (string) ($_POST['current_password'] ?? '');
-        $newPassword = (string) ($_POST['new_password'] ?? '');
+    $currentPassword = (string) ($_POST['current_password'] ?? '');
+    $newPassword = (string) ($_POST['new_password'] ?? '');
 
-        if (!password_verify($currentPassword, $user['password_hash'])) {
-            $errors['current_password'] = 'Mật khẩu hiện tại không đúng.';
-        }
+    if (!password_verify($currentPassword, $user['password_hash'])) {
+        $errors['current_password'] = 'Mật khẩu hiện tại không đúng.';
+    }
 
-        if (strlen($newPassword) < 6) {
-            $errors['new_password'] = 'Mật khẩu mới phải tối thiểu 6 ký tự.';
-        }
+    if (strlen($newPassword) < 6) {
+        $errors['new_password'] = 'Mật khẩu mới phải tối thiểu 6 ký tự.';
+    }
 
-        if ($newPassword !== (string) ($_POST['confirm_password'] ?? '')) {
-            $errors['confirm_password'] = 'Nhập lại mật khẩu mới không khớp.';
-        }
+    if ($newPassword !== (string) ($_POST['confirm_password'] ?? '')) {
+        $errors['confirm_password'] = 'Nhập lại mật khẩu mới không khớp.';
+    }
 
-        if ($errors === []) {
-            change_user_password($userId, $newPassword);
-            set_flash('Mật khẩu đã được cập nhật.', 'success');
-            write_log('INFO', 'PASSWORD_CHANGED', 'Password changed');
-            redirect('profile.php');
-        }
+    if ($errors === []) {
+        change_user_password($userId, $newPassword);
+        set_flash('Mật khẩu đã được cập nhật.', 'success');
+        write_log('INFO', 'PASSWORD_CHANGED', 'Password changed');
+        redirect('profile.php');
     }
 }
 
@@ -57,7 +53,6 @@ render_header('Đổi mật khẩu');
 <section class="card">
     <?php if (isset($errors['form'])): ?><div class="alert alert-danger"><?= e($errors['form']) ?></div><?php endif; ?>
     <form method="post" class="form">
-        <?= csrf_input() ?>
         <label for="current_password">Mật khẩu hiện tại</label>
         <input class="form-control" id="current_password" name="current_password" type="password" required>
         <?php if (isset($errors['current_password'])): ?><span class="field-error"><?= e($errors['current_password']) ?></span><?php endif; ?>

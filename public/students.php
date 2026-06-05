@@ -2,36 +2,25 @@
 
 declare(strict_types=1);
 
-// Danh sách sinh viên: tìm kiếm, lọc, mở chi tiết và xóa sinh viên.
+// Danh sách sinh viên: tìm kiếm nhanh, mở chi tiết và xóa sinh viên.
 require_once __DIR__ . '/../app/auth.php';
 require_once __DIR__ . '/../app/student.php';
 
 require_role('admin');
 
 if (is_post()) {
-    if (!valid_csrf_token()) {
-        set_flash('Phiên làm việc không hợp lệ, vui lòng thử lại.');
-    } elseif (field_value('action', $_POST) === 'delete') {
+    if (field_value('action', $_POST) === 'delete') {
         $studentId = (int) ($_POST['id'] ?? 0);
-        if ($studentId > 0 && delete_student($studentId)) {
-            write_log('INFO', 'STUDENT_DELETED', 'Student deleted', ['student_id' => $studentId]);
+        if ($studentId > 0) {
+            delete_student($studentId);
         }
     }
     redirect('students.php');
 }
 
-$filters = normalize_student_filters($_GET);
-$filterErrors = validate_student_filters($filters);
-if ($filterErrors !== []) {
-    $filters = normalize_student_filters([]);
-}
-$page = max(1, (int) ($_GET['page'] ?? 1));
-$perPage = 20;
-$total = count_students($filters);
-$students = list_students($filters, $perPage, ($page - 1) * $perPage);
-$totalPages = $total === 0 ? 0 : (int) ceil($total / $perPage);
+$keyword = field_value('q', $_GET);
+$students = list_students($keyword);
 
-write_log('INFO', 'STUDENT_LIST_VIEW', 'Student list viewed', ['filters' => $filters]);
 render_header('Danh sách sinh viên');
 ?>
 <section class="page-header">
@@ -40,10 +29,8 @@ render_header('Danh sách sinh viên');
 </section>
 <?php render_flash(); ?>
 <section class="card">
-    <form method="get" class="search-form filter-form">
-        <input class="form-control" name="q" type="search" value="<?= e($filters['q']) ?>" placeholder="Tìm theo mã sinh viên, họ tên hoặc email">
-        <select class="form-select" name="major"><option value="">Tất cả ngành học</option><?php foreach (list_student_majors() as $major): ?><option value="<?= e($major) ?>" <?= $filters['major'] === $major ? 'selected' : '' ?>><?= e($major) ?></option><?php endforeach; ?></select>
-        <select class="form-select" name="year"><option value="">Tất cả năm học</option><?php foreach (list_student_years() as $year): ?><option value="<?= e($year) ?>" <?= $filters['year'] === (string) $year ? 'selected' : '' ?>><?= e($year) ?></option><?php endforeach; ?></select>
+    <form method="get" class="search-form">
+        <input class="form-control" name="q" type="search" value="<?= e($keyword) ?>" placeholder="Tìm theo mã sinh viên, họ tên hoặc email">
         <button class="btn btn-primary" type="submit">Tìm kiếm</button><a class="btn btn-secondary" href="students.php">Làm mới</a>
     </form>
 </section>
@@ -58,12 +45,11 @@ render_header('Danh sách sinh viên');
                     <td class="actions">
                         <a class="btn btn-primary" href="student_detail.php?id=<?= e($student['id']) ?>">Chi tiết</a>
                         <a class="btn btn-warning" href="student_form.php?id=<?= e($student['id']) ?>">Sửa</a>
-                        <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sinh viên này không?')"><?= csrf_input() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e($student['id']) ?>"><button class="btn btn-danger" type="submit">Xóa</button></form>
+                        <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sinh viên này không?')"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e($student['id']) ?>"><button class="btn btn-danger" type="submit">Xóa</button></form>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </section>
-<?php if ($totalPages > 1): ?><nav class="pagination"><?php for ($number = 1; $number <= $totalPages; $number++): ?><a class="<?= $number === $page ? 'active' : '' ?>" href="?<?= e(http_build_query(array_merge($filters, ['page' => $number]))) ?>"><?= e($number) ?></a><?php endfor; ?></nav><?php endif; ?>
 <?php render_footer(); ?>
