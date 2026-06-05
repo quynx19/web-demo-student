@@ -63,7 +63,7 @@ config/database.php  Kết nối PDO
 public/              Các trang PHP xử lý form và render HTML
 public/assets/        CSS giao diện
 sql/init.sql         Toàn bộ schema và dữ liệu mẫu
-logs/app.log         Nhật ký ứng dụng
+logs/app.log         Nhật ký ứng dụng, đăng nhập/đăng xuất, lỗi và exception
 ```
 
 Các form submit trực tiếp bằng `POST` tới trang PHP. Sau khi xử lý thành công,

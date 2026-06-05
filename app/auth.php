@@ -11,6 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+install_app_log_handlers();
+
 function is_logged_in(): bool
 {
     return isset($_SESSION['user_id']);
@@ -32,7 +34,18 @@ function login_user(string $username, string $password): bool
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
-    if (!$user || $user['status'] !== 'active' || !password_verify($password, $user['password_hash'])) {
+    if (!$user) {
+        write_log('WARNING', 'LOGIN_FAILED', 'Username not found', ['username' => $username]);
+        return false;
+    }
+
+    if ($user['status'] !== 'active') {
+        write_log('WARNING', 'LOGIN_FAILED', 'Account is not active', ['username' => $username, 'status' => $user['status']]);
+        return false;
+    }
+
+    if (!password_verify($password, $user['password_hash'])) {
+        write_log('WARNING', 'LOGIN_FAILED', 'Invalid password', ['username' => $username]);
         return false;
     }
 
@@ -48,6 +61,8 @@ function login_user(string $username, string $password): bool
         'samesite' => 'Lax',
     ]);
 
+    write_log('INFO', 'LOGIN_SUCCESS', 'Login success');
+
     return true;
 }
 
@@ -57,6 +72,7 @@ function require_login(): void
         return;
     }
 
+    write_log('WARNING', 'AUTH_REQUIRED', 'Unauthenticated request blocked');
     redirect('login.php');
 }
 
@@ -69,11 +85,17 @@ function require_role(array|string $roles): void
         return;
     }
 
+    write_log('WARNING', 'ACCESS_DENIED', 'Role access denied', [
+        'required_roles' => $allowedRoles,
+        'current_role' => current_user_role(),
+    ]);
+
     redirect('access_denied.php');
 }
 
 function logout_current_user(): void
 {
+    write_log('INFO', 'LOGOUT', 'User logged out');
     $_SESSION = [];
 
     if (ini_get('session.use_cookies')) {

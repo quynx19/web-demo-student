@@ -64,7 +64,7 @@ Hệ thống hiện có 3 nơi cần biết khi kiểm tra log:
 
 - Log ứng dụng:
   `logs/app.log`
-  Dùng để xem các thao tác do code gọi `write_log()`, ví dụ dashboard, xem chi tiết sinh viên, users, logs.
+  Dùng để xem các thao tác do code gọi `write_log()`, ví dụ đăng nhập, đăng xuất, dashboard, xem chi tiết sinh viên, users, logs.
 
 - Trang xem log trong web:
   `public/logs.php`
@@ -103,6 +103,11 @@ Sau khi chạy kịch bản trên, hệ thống ghi thêm 4 dòng log:
 
 Các chức năng hiện có ghi log:
 
+- Đăng nhập thành công: `LOGIN_SUCCESS`
+- Đăng nhập thất bại: `LOGIN_FAILED`
+- Đăng xuất: `LOGOUT`
+- Chưa đăng nhập nhưng truy cập trang cần login: `AUTH_REQUIRED`
+- Sai quyền truy cập: `ACCESS_DENIED`
 - Dashboard admin: `DASHBOARD_VIEW`
 - Xem chi tiết sinh viên: `STUDENT_VIEW`
 - Cập nhật điểm sinh viên: `STUDENT_GRADES_UPDATED`
@@ -111,14 +116,13 @@ Các chức năng hiện có ghi log:
 - Xem danh sách tài khoản: `USER_LIST_VIEW`
 - Đổi mật khẩu: `PASSWORD_CHANGED`
 - Xem nhật ký ứng dụng: `LOG_VIEW`
+- Exception chưa bắt: `UNCAUGHT_EXCEPTION`
+- Fatal error PHP: `FATAL_ERROR`
 
 Các chức năng hiện không ghi log do đã rút gọn cho web local:
 
-- Đăng nhập: chỉ tạo session và cookie `last_username`
-- Đăng xuất: chỉ hủy session
 - Xem danh sách sinh viên: chỉ render danh sách/tìm kiếm nhanh
 - Xem/cập nhật hồ sơ cá nhân: chỉ cập nhật dữ liệu và cookie `theme`
-- Truy cập sai quyền: redirect sang `access_denied.php`, không ghi log
 
 ## Exception kiểm tra được
 
